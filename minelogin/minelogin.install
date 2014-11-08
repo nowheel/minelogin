@@ -1,0 +1,65 @@
+<?php
+function iotidotumidai(){
+	$schema = array(
+      'X' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'the X coordinates',
+      ),
+      'Y' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'the Y coordinates',
+      ),
+      'Z' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'the X coordinates',
+      ),
+      'world' => array(
+      	'type' => 'varchar',
+	    'length' => 32,
+	    'not null' => TRUE,
+	    'default' => '',
+	    'description' => 'The world of coordinates.',
+      ),
+      'minepass' => array(
+      	'type' => 'varchar',
+	     'length' => 32,
+	     'not null' => TRUE,
+	     'default' => '',
+	     'description' => 'The password of minecraft user.',
+      ),
+      'isLogged' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'minecraft user is logged?',
+      ),
+    );
+    return $schema;
+}
+function minelogin_install() {
+	$schema = iotidotumidai();
+	$keys = array_keys($schema);
+	foreach ($keys as $v) {
+	  db_add_field('users', $v, $schema[$v]);
+	}
+	drupal_set_message('minelogin successfully installed','warning');	 
+}
+function minelogin_uninstall() {
+	$schema = iotidotumidai();
+	$keys = array_keys($schema);
+	foreach ($keys as $v) {
+	  db_drop_field('users', $v, $schema[$v]);
+	}
+	drupal_set_message('minelogin successfully uninstalled','warning');
+}
+?>

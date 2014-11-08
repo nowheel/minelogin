@@ -1,0 +1,4 @@
+name = minelogin
+description = minelogin.
+core = 7.x
+package = zlogin
