@@ -1,65 +1,80 @@
 <?php
-function iotidotumidai(){
-	$schema = array(
+function minelogin_schema() {
+	$schema['minelogin'] = array(
+    'description' => 'The base table for minelogin.',
+    'fields' => array(
+      'mid' => array(
+        'description' => 'The primary identifier for a minelogin user.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'uid'       => array(
+      	 'type' => 'int', 
+      	 'unsigned' => TRUE, 
+      	 'not null' => TRUE,
+      	 'default' => 0),
+      'name' => array(
+      	'type' => 'varchar',
+	     'length' => 32,
+	     'not null' => TRUE,
+	     'default' => '',
+	     'description' => 'The password of minecraft user.',),
       'X' => array(
       	'type' => 'int',
 	    'not null' => TRUE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
-	    'description' => 'the X coordinates',
-      ),
+	    'description' => 'the X coordinates',),
       'Y' => array(
       	'type' => 'int',
 	    'not null' => TRUE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
-	    'description' => 'the Y coordinates',
-      ),
+	    'description' => 'the Y coordinates',),
       'Z' => array(
       	'type' => 'int',
 	    'not null' => TRUE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
-	    'description' => 'the X coordinates',
-      ),
+	    'description' => 'the X coordinates',),
       'world' => array(
       	'type' => 'varchar',
 	    'length' => 32,
 	    'not null' => TRUE,
 	    'default' => '',
-	    'description' => 'The world of coordinates.',
-      ),
+	    'description' => 'The world of coordinates.',),
       'minepass' => array(
       	'type' => 'varchar',
 	     'length' => 32,
 	     'not null' => TRUE,
 	     'default' => '',
-	     'description' => 'The password of minecraft user.',
-      ),
+	     'description' => 'The password of minecraft user.',),
       'isLogged' => array(
       	'type' => 'int',
 	    'not null' => TRUE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
-	    'description' => 'minecraft user is logged?',
+	    'description' => 'minecraft user is logged?',),
       ),
-    );
-    return $schema;
+    'foreign keys' => array(
+	   'users' => array(
+	      'table' => 'users',
+	      'columns' => array('uid' => 'uid'),
+     )
+   ),
+  'primary key' => array('mid'),
+  );
+ 	return $schema;
 }
-function minelogin_install() {
-	$schema = iotidotumidai();
-	$keys = array_keys($schema);
-	foreach ($keys as $v) {
-	  db_add_field('users', $v, $schema[$v]);
-	}
-	drupal_set_message('minelogin successfully installed','warning');	 
+
+function mymodule_install() {
+  drupal_install_schema('minelogin');
 }
-function minelogin_uninstall() {
-	$schema = iotidotumidai();
-	$keys = array_keys($schema);
-	foreach ($keys as $v) {
-	  db_drop_field('users', $v, $schema[$v]);
-	}
-	drupal_set_message('minelogin successfully uninstalled','warning');
+
+/**
+ * Implements hook_uninstall().
+ */
+function mymodule_uninstall() {
+  drupal_uninstall_schema('minelogin');
 }
 ?>
