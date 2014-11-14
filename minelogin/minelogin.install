@@ -66,15 +66,4 @@ function minelogin_schema() {
   );
  	return $schema;
 }
-
-function mymodule_install() {
-  drupal_install_schema('minelogin');
-}
-
-/**
- * Implements hook_uninstall().
- */
-function mymodule_uninstall() {
-  drupal_uninstall_schema('minelogin');
-}
 ?>
