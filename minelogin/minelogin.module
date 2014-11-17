@@ -1,0 +1,36 @@
+<?php
+function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
+  $form['minepass'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Minecraft password',    
+      '#maxlength' => 15,
+      '#size' => 15,      
+  ); 
+  $form['#validate'][] = 'minelogin_form_validate';
+  $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
+  return $form;
+}
+
+function minelogin_form_validate($form, &$form_state) {
+  if (!($form_state['values']['minepass'] < 6)){
+    form_set_error('minepass', t('La password deve essere di 6 o più caratteri.'));
+  }
+}
+
+function minelogin_form_register_submit($form, $form_state) {
+ $form_state['redirect'] = '/user/check-mail';
+}
+function minelogin_form_profile_submit($form, $form_state) {
+  global $user; 
+  db_update('minelogin') // Table name no longer needs {}
+  ->fields(array(
+    'mid' => $user->uid,
+    'minepass' => $form_state['values']['minepass'],
+  ))
+  ->execute();
+  
+    drupal_set_message("successfully saved Minecraft password and created account"); 
+}
+function minelogin_user_delete($account) {
+  db_delete('minelogin')->condition('mid', $account->uid)->execute();
+}
