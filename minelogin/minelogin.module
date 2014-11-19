@@ -9,7 +9,13 @@ function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
   $form['#validate'][] = 'minelogin_form_validate';
   $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
   return $form;
+
+
+function minelogin_form_user_register_form_alter(&$form, &$form_state, $form_id){
+  $form['actions']['submit']['#submit'][] = 'minelogin_form_register_submit';
+  return $form;
 }
+
 
 function minelogin_form_validate($form, &$form_state) {
   if (!($form_state['values']['minepass'] < 6)){
@@ -17,20 +23,44 @@ function minelogin_form_validate($form, &$form_state) {
   }
 }
 
-function minelogin_form_register_submit($form, $form_state) {
- $form_state['redirect'] = '/user/check-mail';
+function minelogin_form_register_submit($form, &$form_state) {
+ $form_state['redirect'] = 'user/check-mail';
 }
-function minelogin_form_profile_submit($form, $form_state) {
+
+function minelogin_form_profile_submit($form, &$form_state) {
   global $user; 
-  db_update('minelogin') // Table name no longer needs {}
-  ->fields(array(
+  db_update('minelogin')   ->fields(array(
     'mid' => $user->uid,
     'minepass' => $form_state['values']['minepass'],
   ))
   ->execute();
-  
-    drupal_set_message("successfully saved Minecraft password and created account"); 
+  $form_state['redirect'] = 'user';
+  drupal_set_message("successfully saved Minecraft password and created account"); 
 }
+
 function minelogin_user_delete($account) {
   db_delete('minelogin')->condition('mid', $account->uid)->execute();
+}
+
+function minelogin_menu(){
+  $items['user/check-mail'] = array(
+    'title' => 'Check your mail',
+    'description' => 'check email page.',
+    'page callback' => 'minelogin_page',
+    'access arguments' => array('access content'),
+  );  
+  return $items;
+}
+
+function minelogin_page(){
+  return theme('minelogin_template');
+}
+   
+
+function minelogin_theme(){
+  return array(
+    'minelogin_template' => array(
+      'template' => 'check-email',
+    ),
+  );
 }

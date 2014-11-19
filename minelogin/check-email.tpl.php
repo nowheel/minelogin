@@ -1,0 +1,1 @@
+<p>check your email, we send to you a email where you found the link for activate your account, setup password for site and password for your minecraft account.</p>
