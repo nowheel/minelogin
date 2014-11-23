@@ -85,7 +85,7 @@ settings:
   security:
     minPasswordLength: 4
     unLoggedinGroup: unLoggedinGroup
-    passwordHash: PLAINTEXT                 //change this to plain text, this is temporary, i work on this.
+    passwordHash: SHA512
     doubleMD5SaltLength: 8
     supportOldPasswordHash: false
     unsafePasswords: []
@@ -185,8 +185,6 @@ Protection:
 VeryGames:
   enableIpCheck: false
 ```
-### I'm working on:
-*secure password*
 
 
 ##future updates:
