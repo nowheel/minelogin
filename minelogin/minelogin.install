@@ -45,7 +45,7 @@ function minelogin_schema() {
 	    'description' => 'The world of coordinates.',),
       'minepass' => array(
       	'type' => 'varchar',
-	     'length' => 32,
+	     'length' => 256,
 	     'not null' => TRUE,
 	     'default' => '',
 	     'description' => 'The password of minecraft user.',),
@@ -55,6 +55,24 @@ function minelogin_schema() {
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'minecraft user is logged?',),
+	   'ip' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'ip of minecraft user',),
+	   'lastlogin' => array(
+      	'type' => 'int',
+	    'not null' => TRUE,
+	    'unsigned' => TRUE,
+	    'default' => 0,
+	    'description' => 'time of last login',),
+	   'mail' => array(
+      	'type' => 'varchar',
+	    'length' => 32,
+	    'not null' => TRUE,
+	    'default' => '',
+	    'description' => 'The mail of user.',),
       ),
     'foreign keys' => array(
 	   'users' => array(

@@ -10,32 +10,38 @@ function minelogin_form_register_submit($form, &$form_state){
 }
 
 function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
-  $form['minepass'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Minecraft password',    
-      '#maxlength' => 15,
-      '#size' => 15,      
-  ); 
-  $form['#validate'][] = 'minelogin_form_validate';
-  $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
-  return $form;
+  global $user; 
+  if($form['#user']->uid == $user->uid){
+	  $form['minepass'] = array(
+	      '#type' => 'textfield',
+	      '#title' => 'Minecraft password',    
+	      '#maxlength' => 15,
+	      '#size' => 15,      
+	  ); 
+	  $form['#validate'][] = 'minelogin_form_validate';
+	  $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
+	  return $form;
+  }
 }
 
 function minelogin_form_profile_submit($form, &$form_state) {
   
   global $user; 
-
+  $pass = $form_state['values']['minepass'];
+  $pass = hash('SHA512', $pass);
   db_merge('minelogin')
       ->key(array('uid' => $user->uid))
       ->fields(array(
             'uid' => $user->uid,
-            'minepass' => $form_state['values']['minepass'],
+            'minepass' => $pass,
+            'name'=>$user->name,
+            'mail'=>$user->mail,
       ))
       ->execute();
   
   
   $form_state['redirect'] = 'user';
-  drupal_set_message("successfully saved Minecraft password and created account");
+  drupal_set_message("Successfully saved Minecraft password");
 }
 
 function minelogin_form_validate($form, &$form_state) {
