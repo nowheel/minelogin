@@ -11,7 +11,7 @@ Minelogin is a module for Drupal 7, to registration form added 1 step for minecr
 3. change "config.yml" like it:
 ```
 DataSource:
-  mySQLColumnName: name             //column of player's name
+  mySQLColumnName: username             //column of player's name
   mySQLTablename: minelogin         //table of your database - minelogin is default for running with module
   mySQLUsername: root               //user of database
   backend: mysql                    //type of database, minelogin required mysql
@@ -28,7 +28,7 @@ DataSource:
   mySQLlastlocZ: z                  //z coordinates of player in the minecraft world
   mySQLlastlocWorld: world          //last world where are player
   mySQLColumnEmail: mail            //column of player's email
-  mySQLColumnId: uid                //column of player's unique id
+  mySQLColumnId: id                //column of player's unique id
   mySQLColumnLogged: isLogged       //column for check if player is online
 GroupOptions:
   UnregisteredPlayerGroup: ''
