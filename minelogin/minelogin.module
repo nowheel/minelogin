@@ -25,16 +25,15 @@ function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
 }
 
 function minelogin_form_profile_submit($form, &$form_state) {
-  
-  global $user; 
+  global $user;
   $pass = $form_state['values']['minepass'];
   $pass = hash('SHA512', $pass);
   db_merge('minelogin')
-      ->key(array('uid' => $user->uid))
+      ->key(array('id' => $user->uid))
       ->fields(array(
-            'uid' => $user->uid,
+            'id' => $user->uid,
             'minepass' => $pass,
-            'name'=>$user->name,
+            'username'=>$user->name,
             'mail'=>$user->mail,
       ))
       ->execute();
@@ -51,7 +50,7 @@ function minelogin_form_validate($form, &$form_state) {
 }
 
 function minelogin_user_delete($account) {
-  db_delete('minelogin')->condition('mid', $account->uid)->execute();
+  db_delete('minelogin')->condition('id', $account->uid)->execute();
 }
 
 function minelogin_menu(){
