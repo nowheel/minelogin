@@ -84,15 +84,4 @@ function minelogin_schema() {
   );
  	return $schema;
 }
-/*
-function minelogin_install() {
-  // Create my tables.
-  drupal_install_schema('minelogin');
-}
-
-function minelogin_uninstall() {
-  // Drop my tables.
-  drupal_uninstall_schema('minelogin');
-}
-*/
 ?>

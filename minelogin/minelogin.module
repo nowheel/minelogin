@@ -1,4 +1,26 @@
 <?php
+function minelogin_menu(){
+  $items['/user/check-mail'] = array(
+    'title' => 'Check your mail',
+    'description' => 'check email page.',
+    'page callback' => 'minelogin_page',
+    'access arguments' => array('access content'),
+  );
+  
+  $items['user/%user/edit/minecraft-account'] = array(
+    'title' => 'minecraft account',
+    'description' => 'A form for change password of your minecraft account on this server',
+    'page callback' => 'drupal_get_form',
+    'access callback'=> TRUE,
+    'page arguments' => array('minelogin_form'),
+    'access arguments' => array('access content'),
+  );
+  return $items;
+}
+
+function minelogin_admin_paths_alter(&$paths) {
+  $path['user/%user/edit/minecraft-account'] = TRUE;
+}
 
 function minelogin_form_user_register_form_alter(&$form, &$form_state, $form_id){
   $form['#submit'][] = 'minelogin_form_register_submit';
@@ -7,102 +29,6 @@ function minelogin_form_user_register_form_alter(&$form, &$form_state, $form_id)
 
 function minelogin_form_register_submit($form, &$form_state){
  $form_state['redirect'] = 'user/check-mail';
-}
-
-function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
-  global $user;
-  $sql = "select minepass from minelogin where id = :uid";
-  $args = array(':uid' => $user->uid);
-  $pass_old_arr = db_query($sql, $args)->fetchObject();
-  $pass_old = $pass_old_arr->minepass;
-
-  if($form['#user']->uid == $user->uid){
-	  if(isset($pass_old)){
-		  $form['minepass_old'] = array(
-	      	'#type' => 'password',
-	      	'#title' => 'Vecchia password di Minecraft',    
-	      	'#maxlength' => 32,
-	      	'#size' => 15,
-	      );  
-	  }
-	  $form['minepass'] = array(
-	      '#type' => 'password',   
-	      '#maxlength' => 32,
-	      '#size' => 15,
-	  );
-	  $form['minepass'] = array(
-		  '#type' => 'password_confirm', 
-		  '#title' => 'Minecraft password', 
-		  '#size' => 25,
-		);
-	  $form['#validate'][] = 'minelogin_form_validate';
-	  $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
-	  return $form;
-  }
-}
-
-function minelogin_form_profile_submit($form, &$form_state) {
-  global $user;
-  $pass = $form_state['values']['minepass'];
-  $pass = hash('SHA512', $pass);
-  db_merge('minelogin')
-      ->key(array('id' => $user->uid))
-      ->fields(array(
-            'id' => $user->uid,
-            'minepass' => $pass,
-            'username'=>$user->name,
-            'mail'=>$user->mail,
-      ))
-      ->execute();
-  
-  
-  //$form_state['redirect'] = 'user';
-  drupal_set_message("Successfully saved Minecraft password");
-}
-
-function minelogin_form_validate($form, &$form_state) {
-  global $user;
-  $sql = "select minepass from minelogin where id = :uid";
-  $args = array(':uid' => $user->uid);
-  $pass_old_entered_normal = $form_state['values']['minepass_old'];
-  $pass_old_entered = pass_hash($pass_old_entered_normal);
-  $pass_old_arr = db_query($sql, $args)->fetchObject();
-  $pass_old = $pass_old_arr->minepass;
-  $pass_new_not_enc = $form_state['values']['minepass'];
-  $pass_new = pass_hash($pass_new_not_enc);
-  if(isset($pass_old_arr)){
-	if($pass_old_entered == $pass_old){
-		 if($pass_new == $pass_old){
-			form_set_error('minepass', t('la password è identica a quella vecchia. ripetere l\'operazione'));
-		  }else if (strlen($form_state['values']['minepass']) < 6){
-		    form_set_error('minepass', t('La password deve essere di 6 o più caratteri.'));
-		  } 
-	  }else{
-		  form_set_error('minepass', t('la vecchia password non coincide con quella nel database. riprova di nuovo!'));
-	}  
-  }else{
-	if (strlen($form_state['values']['minepass']) < 6){
-		form_set_error('minepass', t('La password deve essere di 6 o più caratteri.'));
-	} 
-  }  
-}
-function pass_hash($pass){
-	$value = hash('SHA512', $pass);
-	return $value;
-}
-
-function minelogin_user_delete($account) {
-  db_delete('minelogin')->condition('id', $account->uid)->execute();
-}
-
-function minelogin_menu(){
-  $items['user/check-mail'] = array(
-    'title' => 'Check your mail',
-    'description' => 'check email page.',
-    'page callback' => 'minelogin_page',
-    'access arguments' => array('access content'),
-  );
-  return $items;
 }
 
 function minelogin_page(){
@@ -116,4 +42,97 @@ function minelogin_theme(){
       'template' => 'check-email',
     ),
   );
+}
+
+function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
+	global $user;
+	 $form['link'] = array('#markup' => l(t('Edit you minecraft password'),'user/' . $user->uid . '/edit/minecraft-account'));
+}
+
+function minelogin_form($form, &$form_state) {
+  global $user;
+  $sql = "select minepass from minelogin where id = :uid";
+  $args = array(':uid' => $user->uid);
+  $pass_old_arr = db_query($sql, $args)->fetchObject();
+  $pass_old = $pass_old_arr->minepass;
+  $form['title'] = array('#markup' => t('<div id=form-title-minelogin>Edit your Minecraft password.</div>'));
+  if($pass_old){
+	  $form['minepass_old'] = array(
+      	'#type' => 'password',
+      	'#title' => 'Old Minecraft password',    
+      	'#size' => 15,
+      );  
+  }
+  $form['minepass'] = array(
+      '#type' => 'password',   
+      '#size' => 15,
+  );
+  $form['minepass'] = array(
+	  '#type' => 'password_confirm', 
+	  '#title' => 'New Minecraft password',
+	  '#size' => 15,
+	);
+  $form['#validate'][] = 'minelogin_form_validate';
+  $form['actions']['submit']['#submit'][] = 'minelogin_form_submit';
+  
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Click Here!'),
+  );
+  
+  return $form;
+}
+function minelogin_form_submit($form, &$form_state) {
+  global $user;
+  $pass = $form_state['values']['minepass'];
+  $pass = hash('SHA512', $pass);
+  db_merge('minelogin')
+      ->key(array('id' => $user->uid))
+      ->fields(array(
+            'id' => $user->uid,
+            'minepass' => $pass,
+            'username'=>$user->name,
+            'mail'=>$user->mail,
+      ))
+      ->execute();
+  drupal_set_message("Successfully saved Minecraft password");
+}
+
+function minelogin_form_validate($form, &$form_state) {
+  global $user;
+  $sql = "select minepass from minelogin where id = :uid";
+  $args = array(':uid' => $user->uid);
+  $pass_old_entered_normal = $form_state['values']['minepass_old'];
+  $pass_old_entered;
+  if(isset($pass_old_entered_normal)){
+	  $pass_old_entered = pass_hash($pass_old_entered_normal);
+  }
+  $pass_old_arr = db_query($sql, $args)->fetchObject();
+  $pass_old = $pass_old_arr->minepass;
+  $pass_new_not_enc = $form_state['values']['minepass'];
+  $pass_new = pass_hash($pass_new_not_enc);
+  if(isset($pass_old_arr)){
+	if($pass_old_entered == $pass_old){
+		 if($pass_new == $pass_old){
+			form_set_error('minepass', t('la password ï¿½ identica a quella vecchia. ripetere l\'operazione'));
+		  }else if (strlen($form_state['values']['minepass']) < 6){
+		    form_set_error('minepass', t('La password deve essere di 6 o piï¿½ caratteri.'));
+		  } 
+	  }else{
+		  form_set_error('minepass', t('la vecchia password non coincide con quella nel database. riprova di nuovo!'));
+	}  
+  }else{
+	if (strlen($form_state['values']['minepass']) < 6){
+		form_set_error('minepass', t('La password deve essere di 6 o piï¿½ caratteri.'));
+	} 
+  }  
+}
+function pass_hash($pass){
+	$value = hash('SHA512', $pass);
+	return $value;
+}
+
+function minelogin_user_delete($account) {
+  db_delete('minelogin')->condition('id', $account->uid)->execute();
 }
