@@ -32,7 +32,17 @@ function minelogin_form_user_register_form_alter(&$form, &$form_state, $form_id)
 }
 
 function minelogin_form_register_submit($form, &$form_state){
- $form_state['redirect'] = 'user/check-mail';
+  global $user;
+  $pass = $form_state['values']['minepass'];
+  $pass = hash('SHA512', $pass);
+  db_insert('minelogin')
+      ->fields(array(
+            'id' =>  $form_state['values']['uid'],
+            'username' =>  $form_state['values']['name'],
+            'mail' => $form_state['values']['mail'],
+      ))
+      ->execute();
+  drupal_set_message("Ti abbiamo inviato una mail per confermare la identità del tuo account, troverai un link dove potrai configurare la tua password.");
 }
 
 //end register
@@ -89,7 +99,7 @@ function minelogin_form_submit($form, &$form_state) {
             'username' => $user->name,
             'mail' => $user->mail,
       ))
-	  ->condition('id', $user->uid)
+	  ->condition('username', $user->name)
       ->execute();
   drupal_set_message("LA PASSWORD DEL TUO ACCOUNT MINECRAFT SUL NOSTRO SERVER E' STATA CAMBIATA/CREATA!<br> attendi tre minuti prima di giocare, stiamo configurando la tua password ora con Minecraft!");
 }
