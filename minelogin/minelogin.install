@@ -7,70 +7,70 @@ function minelogin_schema() {
         'description' => 'The primary identifier for a minelogin user.',
         'type' => 'serial',
         'unsigned' => TRUE,
-        'not null' => TRUE),
+        'not null' => FALSE),
       'id'       => array(
       	 'type' => 'int', 
       	 'unsigned' => TRUE, 
-      	 'not null' => TRUE,
+      	 'not null' => FALSE,
       	 'default' => 0),
       'username' => array(
       	'type' => 'varchar',
 	     'length' => 32,
-	     'not null' => TRUE,
+	     'not null' => FALSE,
 	     'default' => '',
 	     'description' => 'The password of minecraft user.',),
       'X' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'the X coordinates',),
       'Y' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'the Y coordinates',),
       'Z' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'the X coordinates',),
       'world' => array(
       	'type' => 'varchar',
 	    'length' => 32,
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'default' => '',
 	    'description' => 'The world of coordinates.',),
       'minepass' => array(
       	'type' => 'varchar',
 	     'length' => 256,
-	     'not null' => TRUE,
+	     'not null' => FALSE,
 	     'default' => '',
 	     'description' => 'The password of minecraft user.',),
       'isLogged' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'minecraft user is logged?',),
 	   'ip' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'ip of minecraft user',),
 	   'lastlogin' => array(
       	'type' => 'int',
-	    'not null' => TRUE,
+	    'not null' => FALSE,
 	    'unsigned' => TRUE,
 	    'default' => 0,
 	    'description' => 'time of last login',),
 	   'mail' => array(
       	'type' => 'varchar',
-	    'length' => 32,
-	    'not null' => TRUE,
+	    'length' => 64,
+	    'not null' => FALSE,
 	    'default' => '',
 	    'description' => 'The mail of user.',),
       ),
@@ -84,4 +84,24 @@ function minelogin_schema() {
   );
  	return $schema;
 }
+function minelogin_install() {
+	  // Create my tables.
+	$query = db_select('users', 'u');
+	$query
+	  ->condition('u.uid', 0, '<>')
+	  ->fields('u', array('name', 'uid', 'name', 'mail'));
+	$users = $query->execute();
+	foreach ($users as $user_id => $user) {
+	  db_merge('minelogin')
+      ->key(array('id' => $user->uid))
+      ->fields(array(
+            'id' => $user->uid,
+            'username'=>$user->name,
+            'mail'=>$user->mail,
+      ))
+      ->execute();
+	}
+}
+
+
 ?>

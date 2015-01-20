@@ -6,6 +6,15 @@ function minelogin_menu(){
     'page callback' => 'minelogin_page',
     'access arguments' => array('access content'),
   );
+  /*
+   * $items['/'] = array( //this creates a URL that will call this form at "examples/form-example"
+    'title' => 'minecraft account', //page title
+    'description' => 'A form for change password of your minecraft account on this server',
+    'page callback' => 'drupal_get_form', //this is the function that will be called when the page is accessed.  for a form, use drupal_get_form
+    'page arguments' => array('minelogin_form'), //put the name of the form here
+    'access callback' => TRUE
+  );
+   */
   
   $items['user/%user/edit/minecraft-account'] = array(
     'title' => 'minecraft account',
@@ -50,6 +59,56 @@ function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
 	global $user;
 	 $form['link'] = array('#markup' => l(t('Edit you minecraft password'),'user/' . $user->uid . '/edit/minecraft-account'));
 }
+ 
+ /*
+function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
+  global $user;
+  $sql = "select minepass from minelogin where id = :uid";
+  $args = array(':uid' => $user->uid);
+  $pass_old_arr = db_query($sql, $args)->fetchObject();
+  $pass_old = $pass_old_arr->minepass;
+
+  if($form['#user']->uid == $user->uid){
+	  if($pass_old){
+		  $form['minepass_old'] = array(
+	      	'#type' => 'password',
+	      	'#title' => 'Vecchia password di Minecraft',    
+	      	'#maxlength' => 32,
+	      	'#size' => 15,
+	      );  
+	  }
+	  $form['minepass'] = array(
+	      '#type' => 'password',   
+	      '#maxlength' => 32,
+	      '#size' => 15,
+	  );
+	  $form['minepass'] = array(
+		  '#type' => 'password_confirm', 
+		  '#title' => 'Minecraft password', 
+		  '#size' => 25,
+		);
+	  $form['#validate'][] = 'minelogin_form_validate';
+	  $form['actions']['submit']['#submit'][] = 'minelogin_form_profile_submit';
+	  return $form;
+  }
+}
+
+function minelogin_form_profile_submit($form, &$form_state) {
+  global $user;
+  $pass = $form_state['values']['minepass'];
+  $pass = hash('SHA512', $pass);
+  db_merge('minelogin')
+      ->key(array('id' => $user->uid))
+      ->fields(array(
+            'id' => $user->uid,
+            'minepass' => $pass,
+            'username'=>$user->name,
+            'mail'=>$user->mail,
+      ))
+      ->execute();
+  drupal_set_message("Successfully saved Minecraft password");
+}
+*/
 
 function minelogin_form($form, &$form_state) {
   global $user;
