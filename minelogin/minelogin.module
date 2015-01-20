@@ -1,23 +1,26 @@
 <?php
 function minelogin_menu(){
-  $items['/user/check-mail'] = array(
-    'title' => 'Check your mail',
-    'description' => 'check email page.',
-    'page callback' => 'minelogin_page',
-    'access arguments' => array('access content'),
-  );
-  
   $items['user/%user/edit/minecraft-account'] = array(
     'title' => 'minecraft account',
     'description' => 'A form for change password of your minecraft account on this server',
     'page callback' => 'drupal_get_form',
-    'access callback'=> TRUE,
+    'access callback'=> 'minelogin_access_check',
     'page arguments' => array('minelogin_form'),
-    'access arguments' => array('access content'),
   );
   return $items;
 }
-
+function minelogin_access_check() {
+  global $user;
+  $path = $_SERVER['REQUEST_URI']; // this gives you /folder1/folder2/THIS_ONE/file.php
+  $folders = explode("/", $path);
+  $id = $folders[2];
+  if ($id == $user->uid) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
 function minelogin_admin_paths_alter(&$paths) {
   $path['user/%user/edit/minecraft-account'] = TRUE;
 }
@@ -32,24 +35,14 @@ function minelogin_form_register_submit($form, &$form_state){
  $form_state['redirect'] = 'user/check-mail';
 }
 
-function minelogin_page(){
-  return theme('minelogin_template');
-}
-   
-
-function minelogin_theme(){
-  return array(
-    'minelogin_template' => array(
-      'template' => 'check-email',
-    ),
-  );
-}
 //end register
 
 function minelogin_form_user_profile_form_alter(&$form, &$form_state, $form_id){
 	global $user;
 	 $form['link'] = array('#markup' => l(t('Edit you minecraft password'),'user/' . $user->uid . '/edit/minecraft-account'));
 }
+ 
+
 
 function minelogin_form($form, &$form_state) {
   global $user;
@@ -57,7 +50,7 @@ function minelogin_form($form, &$form_state) {
   $args = array(':uid' => $user->uid);
   $pass_old_arr = db_query($sql, $args)->fetchObject();
   $pass_old = $pass_old_arr->minepass;
-  $form['title'] = array('#markup' => t('<div id=form-title-minelogin>Edit your Minecraft password.</div>'));
+  $form['title'] = array('#markup' => t('<div id="form-title-minelogin">Edit your Minecraft password.</div>'));
   if($pass_old){
 	  $form['minepass_old'] = array(
       	'#type' => 'password',
@@ -98,7 +91,7 @@ function minelogin_form_submit($form, &$form_state) {
       ))
 	  ->condition('id', $user->uid)
       ->execute();
-  drupal_set_message("Successfully saved Minecraft password");
+  drupal_set_message("LA PASSWORD DEL TUO ACCOUNT MINECRAFT SUL NOSTRO SERVER E' STATA CAMBIATA/CREATA!<br> attendi tre minuti prima di giocare, stiamo configurando la tua password ora con Minecraft!");
 }
 
 function minelogin_form_validate($form, &$form_state) {
@@ -129,6 +122,14 @@ function minelogin_form_validate($form, &$form_state) {
 		form_set_error('minepass', t('La password deve essere di 6 o pi� caratteri.'));
 	} 
   }  
+}
+function minelogin_permission() {
+  return array(
+    'minelogin permission' => array(
+      'title' => t('Administer permission for minelogin'),
+      'description' => t('Show page form of minelogin module of catecory of user you want.'),
+    ),
+  );
 }
 function pass_hash($pass){
 	$value = hash('SHA512', $pass);
