@@ -1,4 +1,7 @@
 # MINELOGIN
+
+THIS MODULE IS DEPRECATED, WE HAVE ISSUE WITH REGISTRATION END CHECK USER WITH DATABASE, BECAUSE AUTHME RELOADED IS INCOMPATIBLE
+
 Minelogin is a module for Drupal 7, to registration form added 1 step for minecraft password, required Bukkit with AuthMe plugin.
 
 
